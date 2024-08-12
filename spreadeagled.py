@@ -3,7 +3,10 @@
 import asyncio
 import socket
 import uuid
+import yaml
 from websockets.server import serve
+
+users = yaml.safe_load(open('users.yaml', 'r'))
 
 def parse_message(message):
     protocol_version = message[0:1]
@@ -56,6 +59,9 @@ async def handle(websocket):
     message = await websocket.recv()
     protocol_version, user_id, port, address, request_data = \
         parse_message(message)
+
+    if not str(user_id) in users:
+        return
 
     loop = asyncio.get_running_loop()
     on_con_lost = loop.create_future()
